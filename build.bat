@@ -1,0 +1,1 @@
+premake5.exe --file=p50k.build vs2017

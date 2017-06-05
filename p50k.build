@@ -1,0 +1,27 @@
+
+
+-- Create the workspace
+workspace "P50K"
+    language "C++"
+    location "BUILD"
+    targetdir "OUT"
+
+    configurations { "Release" }
+    platforms { "x64" }
+    systemversion "10.0.15063.0"
+
+    includedirs { "./src", "./extlib/include", "$(CUDA_PATH)/include" }
+    libdirs { "./extlib/vs2017", "$(CUDA_PATH)/lib/x64" }
+
+
+-- Create the project
+project "P50K"
+    kind "ConsoleApp"
+    flags { "C++14" }
+    optimize "Speed"
+
+    links { "OpenCL", "glew32.lib", "glfw3.lib", "opengl32.lib" }
+    defines { "GLEW_STATIC" }
+    disablewarnings { "4101" }
+
+    files { "./src/**.cpp", "./src/**.hpp" }
