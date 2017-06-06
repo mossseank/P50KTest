@@ -9,7 +9,6 @@
 class Simulation
 {
 private:
-	Camera *m_camera;
 	VertexBuffer* m_buffers[2];
 	Shader *m_particleShader;
 	Kernel *m_particleKernel;

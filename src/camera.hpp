@@ -9,12 +9,14 @@
 class Camera
 {
 private:
-	const glm::mat4 m_view;
-	const glm::mat4 m_proj;
+	glm::mat4 m_view;
+	glm::mat4 m_proj;
 
 public:
 	Camera(float left, float top, float right, float bottom);
 	~Camera();
+
+	void onResize(float left, float top, float right, float bottom);
 
 	inline const glm::mat4& view() const { return m_view; }
 	inline const glm::mat4& projection() const { return m_proj; }

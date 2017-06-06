@@ -14,3 +14,9 @@ Camera::~Camera()
 {
 
 }
+
+// ================================================================================================
+void Camera::onResize(float left, float top, float right, float bottom)
+{
+	m_proj = glm::ortho(left, right, bottom, top, 0.01f, 100.0f);
+}

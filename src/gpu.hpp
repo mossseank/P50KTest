@@ -7,8 +7,10 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include "camera.hpp"
 
 
+extern Camera *g_camera;
 extern GLFWwindow *g_windowPtr;
 extern cl_device_id g_clDevice;
 extern cl_context g_clContext;

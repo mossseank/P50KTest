@@ -5,7 +5,6 @@
 
 // ================================================================================================
 Simulation::Simulation(size_t pcount, float xdim, float ydim) :
-	m_camera{nullptr},
 	m_buffers{nullptr, nullptr},
 	m_particleShader{nullptr},
 	m_particleKernel{nullptr},
@@ -14,8 +13,6 @@ Simulation::Simulation(size_t pcount, float xdim, float ydim) :
 	m_xdim{xdim},
 	m_ydim{ydim}
 {
-	m_camera = new Camera(-2.5, 2.5, 2.5, -2.5);
-
 	m_particleShader = new Shader(ParticleVertexShaderSource, nullptr, ParticleFragmentShaderSource);
 
 	m_particleKernel = new Kernel(ParticleKernelSource, "Solve");
@@ -32,9 +29,6 @@ Simulation::Simulation(size_t pcount, float xdim, float ydim) :
 // ================================================================================================
 Simulation::~Simulation()
 {
-	if (m_camera)
-		delete m_camera;
-
 	if (m_particleShader)
 		delete m_particleShader;
 	
@@ -69,8 +63,8 @@ void Simulation::render(float dtime)
 	dstbuf->releaseCLMemory();
 
 	m_particleShader->bind();
-	m_particleShader->setUniform("Projection", m_camera->projection());
-	m_particleShader->setUniform("View", m_camera->view());
+	m_particleShader->setUniform("Projection", g_camera->projection());
+	m_particleShader->setUniform("View", g_camera->view());
 	m_particleShader->setUniform("Time", (totalTime += dtime));
 	srcbuf->drawBuffer(GL_POINTS, 0, m_pCount);
 	m_particleShader->release();

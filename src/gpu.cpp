@@ -9,6 +9,7 @@ extern "C" {
 }
 
 
+Camera *g_camera = nullptr;
 GLFWwindow *g_windowPtr = nullptr;
 cl_device_id g_clDevice = nullptr;
 cl_context g_clContext = nullptr;
@@ -19,6 +20,14 @@ size_t OPENCL_MAX_WORK_GROUP_SIZE = 0;
 void _glfw_error_callback(int err, const char *errstr)
 {
 	std::cerr << "GLFW Error (" << err << "):  \"" << errstr << "\"." << std::endl;
+}
+
+void _glfw_resize_callback(GLFWwindow *win, int width, int height)
+{
+	const float xscale = width / 1080.0f;
+	const float yscale = height / 1080.0f;
+	g_camera->onResize(-2.5f * xscale, 2.5f * yscale, 2.5f * xscale, -2.5f * yscale);
+	glViewport(0, 0, width, height);
 }
 
 
@@ -49,14 +58,16 @@ void initialize_gl()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
 	glfwWindowHint(GLFW_REFRESH_RATE, 60);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-	g_windowPtr = glfwCreateWindow(2000, 2000, "P50K", nullptr, nullptr);
+	g_windowPtr = glfwCreateWindow(1000, 1000, "P50K", nullptr, nullptr);
 	if (!g_windowPtr)
 		throw std::runtime_error("Could not create GLFW window");
 
 	glfwMakeContextCurrent(g_windowPtr);
 	glfwSwapInterval(1);
+
+	glfwSetWindowSizeCallback(g_windowPtr, _glfw_resize_callback);
 
 	GLenum glewerror = GLEW_OK;
 	if ((glewerror = glewInit()) != GLEW_OK) {
@@ -64,8 +75,10 @@ void initialize_gl()
 				reinterpret_cast<const char*>(glewGetErrorString(glewerror)) + "\"");
 	}
 
-	glViewport(0, 0, 2000, 2000);
+	glViewport(0, 0, 1000, 1000);
 	glEnable(GL_DEPTH_TEST);
+
+	g_camera = new Camera(-2.5f, 2.5f, 2.5f, -2.5f);
 
 	const GLubyte *renderer = glGetString(GL_RENDERER);
 	std::cout << "Initialized Graphics Device (" << reinterpret_cast<const char*>(renderer) << ")" << std::endl;
@@ -191,6 +204,9 @@ size_t getMaxWorkGroupSize()
 
 void shutdown_gl()
 {
+	if (g_camera)
+		delete g_camera;
+
 	if (g_windowPtr)
 		glfwDestroyWindow(g_windowPtr);
 
