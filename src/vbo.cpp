@@ -6,6 +6,7 @@ VertexBuffer::VertexBuffer(size_t size, GLenum usage) :
 	m_vao{0},
 	m_vbo{0},
 	m_isMapped{false},
+	m_clMem{nullptr},
 	m_size{size},
 	m_usage{usage}
 {
@@ -20,6 +21,14 @@ VertexBuffer::VertexBuffer(size_t size, GLenum usage) :
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, size, nullptr, usage);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	cl_int clerr = 0;
+	m_clMem = clCreateFromGLBuffer(g_clContext, CL_MEM_READ_WRITE, m_vbo, &clerr);
+	if (!m_clMem || clerr) {
+		std::stringstream ss("Unable to bind OpenGL buffer as OpenCL memory (error: ");
+		ss << clerr << ")";
+		throw std::runtime_error(ss.str());
+	}
 }
 
 // ================================================================================================
@@ -62,6 +71,24 @@ void VertexBuffer::setData(const void * const data)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_size, data);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+// ================================================================================================
+void VertexBuffer::acquireCLMemory()
+{
+	glFinish();
+	CL_CHECK_FATAL(clEnqueueAcquireGLObjects(g_clCommandQueue, 1, &m_clMem, 0, nullptr, nullptr),
+		"Unable to acquire CL memory object.");
+	clFinish(g_clCommandQueue);
+}
+
+// ================================================================================================
+void VertexBuffer::releaseCLMemory()
+{
+	clFinish(g_clCommandQueue);
+	CL_CHECK_FATAL(clEnqueueReleaseGLObjects(g_clCommandQueue, 1, &m_clMem, 0, nullptr, nullptr),
+		"Unable to release CL memory object.");
+	glFinish();
 }
 
 // ================================================================================================

@@ -3,6 +3,12 @@
 #include <iostream>
 
 
+// Activate the NVIDIA Optimus gpu settings
+extern "C" {
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+
+
 GLFWwindow *g_windowPtr = nullptr;
 cl_device_id g_clDevice = nullptr;
 cl_context g_clContext = nullptr;
@@ -20,7 +26,8 @@ const char *clGetErrorString(cl_int);
 bool _clCheckError(cl_int err, const char *file, unsigned int line, const std::string& msg, bool fatal)
 {
 	if (err) {
-		std::cerr << "OpenCL error | " << file << "(" << line << ") : '" << clGetErrorString(err) << "'." << std::endl;
+		std::cerr << "OpenCL error | " << file << "(" << line << ") : (" << err << ")'" 
+				<< clGetErrorString(err) << "'." << std::endl;
 		if (fatal)
 			throw std::runtime_error(msg);
 		else
@@ -49,6 +56,7 @@ void initialize_gl()
 		throw std::runtime_error("Could not create GLFW window");
 
 	glfwMakeContextCurrent(g_windowPtr);
+	glfwSwapInterval(1);
 
 	GLenum glewerror = GLEW_OK;
 	if ((glewerror = glewInit()) != GLEW_OK) {
@@ -59,7 +67,8 @@ void initialize_gl()
 	glViewport(0, 0, 2000, 2000);
 	glEnable(GL_DEPTH_TEST);
 
-	std::cout << "Initialized Graphics Device" << std::endl;
+	const GLubyte *renderer = glGetString(GL_RENDERER);
+	std::cout << "Initialized Graphics Device (" << reinterpret_cast<const char*>(renderer) << ")" << std::endl;
 }
 
 void initialize_cl()
@@ -164,7 +173,7 @@ void initialize_cl()
 
 	// Create the context and command queue on the fastest device
 	clerr = CL_NONE;
-	g_clContext = clCreateContext(clprops, 1, &clfastdevid, clerrcallback, nullptr, &clerr);
+	g_clContext = clCreateContext(clprops, 1, &clfastdevid, /*clerrcallback*/ nullptr, nullptr, &clerr);
 	if (!g_clContext || clerr)
 		throw std::runtime_error(std::string("Failed to create OpenCL context on selected device (") + clGetErrorString(clerr) + ")");
 	g_clCommandQueue = clCreateCommandQueue(g_clContext, clfastdevid, NULL, &clerr);
@@ -273,6 +282,8 @@ const char* clGetErrorString(cl_int error)
 
 	if (error >= -63 && error <= 0)
 		return strings[-error];
+	else if (error <= -1000)
+		return "CL_EXTENSION_ERROR_CODE";
 	else
 		return strings[64];
 }

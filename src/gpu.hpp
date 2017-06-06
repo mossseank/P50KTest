@@ -26,6 +26,13 @@ extern cl_command_queue g_clCommandQueue;
 		snprintf(outstr, 1024, msg, __VA_ARGS__); \
 		return std::string(outstr); \
 	})(), true)
+#define CL_CHECK_RETURN_FATAL(stmt, errval, stmtval, msg, ...) \
+	_clCheckError(([&]() -> cl_int { (stmt); return (errval) ? (errval) : !(stmtval); })(), \
+		__FILE__, __LINE__, ([&]() -> std::string { \
+			char outstr[1024]; \
+			snprintf(outstr, 1024, msg, __VA_ARGS__); \
+			return std::string(outstr); \
+		})(), true)
 bool _clCheckError(cl_int err, const char *file, unsigned int line, const std::string& msg, bool fatal);
 
 void initialize_gl();

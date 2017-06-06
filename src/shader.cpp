@@ -174,18 +174,16 @@ const char * const ParticleVertexShaderSource = R"(
 	layout(location = 2) in vec2  inVel;
 	layout(location = 3) in vec2  inAcc;
 
+	out vec2 vfPos;
+
 	uniform mat4 View;
 	uniform mat4 Projection;
 	uniform float Time;
 
-	out float vfXShadeAmt;
-	out float vfYShadeAmt;
-
 	void main()
 	{
 		vec4 pos = vec4(inPos, 0, 1);
-		vfXShadeAmt = (inPos.x + 10.0) / 20.0;
-		vfYShadeAmt = (inPos.y + 10.0) / 20.0;
+		vfPos = inPos;
 		gl_Position = Projection * View * pos;
 	}
 )";
@@ -195,13 +193,13 @@ const char * const ParticleGeometryShaderSource = R"(
 const char * const ParticleFragmentShaderSource = R"(
 	#version 330 core
 
-	in float vfXShadeAmt;
-	in float vfYShadeAmt;
+	in vec2 vfPos;
 
 	layout(location = 0) out vec4 FragColor;
 
 	void main()
 	{
-		FragColor = vec4(vfXShadeAmt, (1.0 - vfXShadeAmt) * vfYShadeAmt, 1.0 - vfYShadeAmt, 1);
+		float dist = length(vfPos);
+		FragColor = vec4(dist, 1, 1, 1);
 	}
 )";

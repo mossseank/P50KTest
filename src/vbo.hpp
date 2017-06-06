@@ -3,6 +3,7 @@
 #include <CL\cl.hpp>
 #include <GL\glew.h>
 #include <glfw\glfw3.h>
+#include "gpu.hpp"
 
 
 struct vertex_format_specifier_t
@@ -21,6 +22,7 @@ private:
 	GLuint m_vao;
 	GLuint m_vbo;
 	bool m_isMapped;
+	cl_mem m_clMem;
 	const size_t m_size;
 	const GLenum m_usage;
 
@@ -32,9 +34,13 @@ public:
 	inline GLuint getVaoName() const { return m_vao; }
 	inline size_t getSize() const { return m_size; }
 	inline GLenum getUsage() const { return m_usage; }
+	inline cl_mem getCLMemory() const { return m_clMem; }
 
 	void setFormat(const vertex_format_specifier_t *fmt, size_t count);
 	void setData(const void * const data);
+
+	void acquireCLMemory();
+	void releaseCLMemory();
 
 	void* mapBuffer(GLenum flag);
 	void* mapBufferRange(GLenum flag, size_t offset, size_t length);

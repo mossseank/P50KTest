@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
 void mainloop()
 {
-	TheSimulation = new Simulation;
+	TheSimulation = new Simulation(50000, 4, 4);
 
 	glPointSize(2);
 
