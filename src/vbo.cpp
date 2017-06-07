@@ -76,19 +76,19 @@ void VertexBuffer::setData(const void * const data)
 // ================================================================================================
 void VertexBuffer::acquireCLMemory()
 {
-	glFinish();
+	//glFinish();
 	CL_CHECK_FATAL(clEnqueueAcquireGLObjects(g_clCommandQueue, 1, &m_clMem, 0, nullptr, nullptr),
 		"Unable to acquire CL memory object.");
-	clFinish(g_clCommandQueue);
+	//clFinish(g_clCommandQueue);
 }
 
 // ================================================================================================
 void VertexBuffer::releaseCLMemory()
 {
-	clFinish(g_clCommandQueue);
+	//clFinish(g_clCommandQueue);
 	CL_CHECK_FATAL(clEnqueueReleaseGLObjects(g_clCommandQueue, 1, &m_clMem, 0, nullptr, nullptr),
 		"Unable to release CL memory object.");
-	glFinish();
+	//glFinish();
 }
 
 // ================================================================================================

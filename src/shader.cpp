@@ -182,9 +182,11 @@ const char * const ParticleVertexShaderSource = R"(
 
 	void main()
 	{
-		vec4 pos = vec4(inPos, 0, 1);
+		vec4 pos = vec4(inPos * 2, 0, 1);
 		vfPos = inPos;
 		gl_Position = Projection * View * pos;
+		float dist = length(inPos);
+		gl_PointSize = (5 + (sin(dist * 8) * 3)) * sqrt(dist);
 	}
 )";
 const char * const ParticleGeometryShaderSource = R"(
@@ -197,9 +199,12 @@ const char * const ParticleFragmentShaderSource = R"(
 
 	layout(location = 0) out vec4 FragColor;
 
+	uniform float Time;
+
 	void main()
 	{
 		float dist = length(vfPos);
-		FragColor = vec4(dist, 1, 1, 1);
+		float alpha = 0.6 + (sin((vfPos.x * 5) + (vfPos.y * 2) + (Time * 2)) * 0.4);
+		FragColor = vec4(dist / 4.0, (1 - dist) * 4, 1 - (dist / 5), 1);
 	}
 )";

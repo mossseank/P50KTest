@@ -95,7 +95,7 @@ void Kernel::executeNDRange(unsigned int numdim, const size_t* worksize, bool wa
 // ================================================================================================
 // ================================================================================================
 const char * const ParticleKernelSource = R"(
-	#pragma OPENCL EXTENSION CL_KHR_gl_sharing : enable
+	//#pragma OPENCL EXTENSION CL_KHR_gl_sharing : enable
 
 	// Particle struct (mirror of the host Particle type)
 	typedef struct __attribute__((packed)) Particle
@@ -130,7 +130,7 @@ const char * const ParticleKernelSource = R"(
 		float2 vfield = ((float2)(afx, afy) * 0.1f);
 
 		// And another velocity field
-		float pulseamt = sin(TotalTime * 2.0f) * 0.5f;
+		float pulseamt = sin(TotalTime * 2.0f) * 1.0f;
 		vfield.x += (pulseamt * cos(angle));
 		vfield.y += (pulseamt * sin(angle));
 
